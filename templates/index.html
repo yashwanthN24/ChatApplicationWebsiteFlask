@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        #chat-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        #message-box {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        #message-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e6f7ff;
+        }
+
+        .logout-btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <ul id="message-list">
+            {% for message in messages %}
+                <li class="message">{{ message.user.username }}: {{ message.content }}</li>
+            {% endfor %}
+        </ul>
+        
+        <div>
+            <input type="text" id="message-box" placeholder="Type your message...">
+            <div class="container">
+                <button onclick="sendMessage()" class="btn btn-info">Send</button>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger ">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        const socket = io.connect();
+
+// Function to send a message
+function sendMessage() {
+    const messageBox = document.getElementById('message-box');
+    const message = messageBox.value.trim();
+
+    if (message !== '') {
+        socket.emit('new_message', { 'message': message });
+        messageBox.value = '';
+    }
+}
+
+// Function to display a message
+function displayMessage(data) {
+    const messageList = document.getElementById('message-list');
+    const listItem = document.createElement('li');
+    listItem.className = 'message';
+    listItem.textContent = `${data.username}: ${data.message}`;
+    messageList.appendChild(listItem);
+}
+
+// Event listener for receiving new messages
+socket.on('new_message', function(data) {
+    const currentSessionId = '{{ current_user.id }}';
+    if (data.session_id === currentSessionId) {
+        displayMessage(data);
+    }
+});
+    </script>
+</body>
+</html>
