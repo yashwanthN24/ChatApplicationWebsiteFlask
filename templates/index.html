@@ -71,33 +71,44 @@
     <script>
         const socket = io.connect();
 
-// Function to send a message
-function sendMessage() {
-    const messageBox = document.getElementById('message-box');
-    const message = messageBox.value.trim();
+        // Function to send a message
+        function sendMessage() {
+            const messageBox = document.getElementById('message-box');
+            const message = messageBox.value.trim();
 
-    if (message !== '') {
-        socket.emit('new_message', { 'message': message });
-        messageBox.value = '';
-    }
-}
+            if (message !== '') {
+                socket.emit('new_message', { 'message': message });
+                messageBox.value = '';
+            }
+        }
 
-// Function to display a message
-function displayMessage(data) {
-    const messageList = document.getElementById('message-list');
-    const listItem = document.createElement('li');
-    listItem.className = 'message';
-    listItem.textContent = `${data.username}: ${data.message}`;
-    messageList.appendChild(listItem);
-}
+        // Function to display a message
+        function displayMessage(data) {
+            const messageList = document.getElementById('message-list');
+            const listItem = document.createElement('li');
+            listItem.className = 'message';
+            listItem.textContent = `${data.username}: ${data.message}`;
+            messageList.appendChild(listItem);
+        }
 
-// Event listener for receiving new messages
-socket.on('new_message', function(data) {
-    const currentSessionId = '{{ current_user.id }}';
-    if (data.session_id === currentSessionId) {
-        displayMessage(data);
-    }
-});
+        // Event listener for receiving new messages
+        socket.on('new_message', function(data) {
+            displayMessage(data);
+        });
+
+        // Scroll to the bottom of the chat container
+        function scrollToBottom() {
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Scroll to bottom when the page loads
+        window.onload = scrollToBottom;
+
+        // Scroll to bottom on each new message
+        socket.on('new_message', function() {
+            scrollToBottom();
+        });
     </script>
 </body>
 </html>

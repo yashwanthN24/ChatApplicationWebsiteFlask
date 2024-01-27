@@ -21,6 +21,9 @@ class Message(db.Model):
     content = db.Column(db.String(200), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship('User', backref='messages')
+    session_id = db.Column(db.String(255)) 
+
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -76,7 +79,10 @@ def handle_message(data):
     new_message = Message(content=message_content, user=current_user, session_id=session_id)
     db.session.add(new_message)
     db.session.commit()
-    emit('new_message', {'message': message_content, 'username': current_user.username, 'session_id': session_id}, room=session_id)
+
+    # Emit the new message to all connected clients
+    emit('new_message', {'message': message_content, 'username': current_user.username, 'session_id': session_id}, broadcast=True)
+
 
 if __name__ == '__main__':
     with app.app_context():
