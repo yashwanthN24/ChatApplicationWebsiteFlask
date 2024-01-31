@@ -7,7 +7,7 @@ import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY') 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DB_URI' ,'sqlite:///chat.db' )
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL' )
 socketio = SocketIO(app)
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
